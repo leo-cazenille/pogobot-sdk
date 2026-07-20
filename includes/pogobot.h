@@ -66,7 +66,6 @@
  */
 void pogobot_init( void );
 
-
 /** 
  * ## Infrared communication API Values
  */
@@ -336,6 +335,18 @@ int pogobot_infrared_message_available( void );
  */
 void pogobot_infrared_recover_next_message( message_t *mes );
 
+/** (is_muted)
+ * Indicate whether or not its IR are muted.
+ *
+ * # Parameters
+ * - none
+ * 
+ * # Return
+ * - '_master_mute" - 1 if muted, 0 if unmuted.
+ *
+ */
+int is_muted(void);
+
 /** (pogobot_infrared_clear_message_queue)
  * Clears Infrared message queue
  *
@@ -488,6 +499,17 @@ void pogobot_infrared_get_receiver_error_counter( slip_error_counter_s *error_co
  *
  */
 void pogobot_infrared_reset_receiver_error_counter( void );
+
+/** (IR_reset_interrupt_flags)
+ * Lower IR interrupt flags.
+ *
+ * # Parameters
+ * - none
+ *
+ * # Return
+ * - none
+ */
+void IR_reset_interrupt_flags(void);
 
 /** 
  * ## RGB LED API
@@ -992,6 +1014,117 @@ void pogobot_timer_wait_for_expiry( time_reference_t *timer );
  *
  */
 void pogobot_timer_offset_origin_microseconds( time_reference_t *timer, int32_t microseconds_offset );
+
+/**
+ * ## FLASH API 
+ */
+
+/** This is a simple flash read / write implementation.
+ *
+ * Those functions allow the user to store data in the flash memory.
+ *
+ * The section is 64kB long and is writable by pages of 256 bytes.
+ * It starts at 0x290000 and is 0x10000 long.
+*/
+
+/** (erase_write_section_flash)
+ * Erase the whole user writable section (64 kB).
+ * It fills the section with 0xFF values.
+ *
+ * # Parameters
+ * - none
+ *
+ * # Return 
+ * - none 
+**/
+void erase_write_section_flash(void);
+
+/** (write_page_flash)
+ * Writes 256 bytes on a page in the user writable section.
+ *
+ * # Parameters
+ * - 'page' - page number
+ * - 'data' - pointer to an array containing data to write in the page.
+ *
+ * # Return 
+ * - none
+**/
+void write_page_flash(uint8_t page, const void *data);
+
+/** (read_page_flash)
+ * Reads 256 bytes on a page in the user writable section.
+ *
+ * # Parameters
+ * - 'page' - page number
+ * - 'data' - pointer to an array to fill with flash page data.
+ *
+ * # Return 
+ * - none
+**/
+void read_page_flash(uint8_t page, char *buf);
+
+/**
+ * ## MAGNETOMETER API 
+ */
+
+/** This is a simple magnetometer configure, read and calibrate implementation.
+ * The magnetometer is located on the SRAM footprint on the head.
+ *.
+ * The LIS2MDL communicate through SPI with a defined configuration
+ * Measured data must be multiplied by 1.5mG to convert the measured values into physical quantities.
+*/
+
+/** (magn_begin)
+ * Starts the communication with the magnetometer through the SPI bus.
+ * 
+ * # Parameters
+ * - none
+ *
+ * # Return
+ * - none
+**/
+void magn_begin(void);
+
+/** (magn_end)
+ * Stops the communication with the magnetometer through the SPI bus.
+ * 
+ * # Parameters
+ * - none
+ *
+ * # Return
+ * - none
+**/
+void magn_end(void);
+
+/** (magn_read_XYZ)
+ * Measures the magnetic field on the x,y and z axis. 
+ *
+ * # Parameters : 
+ * x, y, z    - x, y and z axis coordinates measured by the magnetometer (needs calibration)
+ * timeout_ms - measurement timeout in ms.
+ *
+ * # Returns :
+ * - 1 if successfull else 0
+**/
+int magn_read_XYZ(int16_t* x, int16_t* y, int16_t* z, uint16_t timeout_ms);
+
+/** (magn_init)
+ * Check the magnetometer availability on the SPI bus and configures it.
+ * Configuration :
+ * - Temperature Compensation - ON
+ * - ODR = 50 Hz, MD = continuous mode
+ * - Digital LPF - ON
+ * - Offset cancellation - ON
+ * - 4WSPI - ON
+ * - BDU - ON
+ * 
+ * # Parameters
+ * - None
+ * 
+ * # Return
+ * - 1 if successfully detected the magnetometer, else 0
+**/
+uint8_t magn_init(void);
 
 
 #endif /* __POGOBOT_H__ */
