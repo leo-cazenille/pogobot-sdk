@@ -1,5 +1,6 @@
 BUILD_DIR=./build
-POGO_SDK=../../sdk/build_sdk
+# This example is distributed inside the standalone SDK repository.
+POGO_SDK=../..
 
 POGO_SDK_TOOLS=$(POGO_SDK)/tools
 POGO_SDK_INCS=$(POGO_SDK)/includes
